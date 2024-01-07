@@ -1,12 +1,22 @@
 local playerInZone = false
 local isEmoteActive = false
+local QBCore = exports['qb-core']:GetCoreObject()
 
-local function ShowNotification(text)
+
+local function ShowNotification(text, type)
+    if Config.USE_Notify then
+    if Config.Notify == 'qb' then
+        QBCore.Functions.Notify(text, type)       
+    elseif Config.Notify == 'ox' then 
+        lib.notify({description = text, type = type})
+    end
+    else
     local message = {
         color = {255, 0, 0},
         args = {"[Group Emote]", text}
     }
     TriggerEvent("chat:addMessage", message)
+end
 end
 
 RegisterCommand("setemote", function(source, args, rawCommand)
@@ -29,7 +39,11 @@ RegisterNetEvent("groupemote:syncEmote")
 AddEventHandler("groupemote:syncEmote", function(playerId, playerName, newEmoteName)
     if playerInZone then
         if isEmoteActive then
+        if Config.Emotes == 'rpemotes' then       
             exports[Config.exportName]:EmoteCancel(true)
+        elseif Config.Emotes == 'scully_emotemenu' then
+            exports.scully_emotemenu:cancelEmote(true)
+        end
             isEmoteActive = false
         end
 
@@ -37,8 +51,12 @@ AddEventHandler("groupemote:syncEmote", function(playerId, playerName, newEmoteN
         ShowNotification(playerName .. " changed the emote to: " .. Config.emoteName)
 
         if not isEmoteActive then
+        if Config.Emotes == 'rpemotes' then            
             exports[Config.exportName]:EmoteCommandStart(Config.emoteName, 1, true)
-            isEmoteActive = true
+        elseif Config.Emotes == 'scully_emotemenu' then
+            exports.scully_emotemenu:playEmoteByCommand(Config.emoteName, 1, true) 
+        end
+        isEmoteActive = true
         end
     end
 end)
@@ -65,7 +83,11 @@ Citizen.CreateThread(function()
         elseif not playerInZone and prevPlayerInZone then
             ShowNotification("You have left the group emote zone.")
             if isEmoteActive then
-                exports[Config.exportName]:EmoteCancel(true)
+                if Config.Emotes == 'rpemotes' then       
+                    exports[Config.exportName]:EmoteCancel(true)
+                elseif Config.Emotes == 'scully_emotemenu' then
+                    exports.scully_emotemenu:cancelEmote(true)
+                end
                 isEmoteActive = false
             end
         end
@@ -78,7 +100,11 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
         if IsControlJustPressed(0, 73) and exports[Config.exportName]:IsPlayerInAnim() then
-            exports[Config.exportName]:EmoteCancel(true)
+            if Config.Emotes == 'rpemotes' then       
+                exports[Config.exportName]:EmoteCancel(true)
+            elseif Config.Emotes == 'scully_emotemenu' then
+                exports.scully_emotemenu:cancelEmote(true)
+            end
             isEmoteActive = false
         end
     end

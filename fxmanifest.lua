@@ -5,11 +5,13 @@ lua54 "yes"
 
 version '1.1.0'
 
+shared_scripts {
+    '@ox_lib/init.lua',
+}
 client_scripts {
     'config.lua',
     'client.lua'
 }
 server_script 'server.lua'
 
-dependency 'rpemotes'
 
